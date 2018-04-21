@@ -1,4 +1,4 @@
-# Roskomnadzor ban registry checker
+# Roskomnadzor prohibited resources registry checker
 
 ```
 git clone https://github.com/nixikanius/rkn-checker
