@@ -28,16 +28,22 @@ if script_args.mode == "check" and not script_args.host:
 
 script_dir = os.path.dirname(__file__)
 registry_dir = os.path.join(script_dir, "registry")
-registry_archive = os.path.join(script_dir, "registry.zip")
-ips_data_file = os.path.join(registry_dir, "z-i-master", "dump.csv")
-fqdn_data_file = os.path.join(registry_dir, "z-i-master", "nxdomain.txt")
+registry_archive = os.path.join(registry_dir, "registry.zip")
+ips_data_file = os.path.join(registry_dir, "z-i-master/dump.csv")
+fqdn_data_file = os.path.join(registry_dir, "z-i-master/nxdomain.txt")
 
 
 def fetch():
-    if os.path.exists(registry_dir):
-        shutil.rmtree(registry_dir)
+    if not os.path.exists(registry_dir):
+        os.mkdir(registry_dir)
 
-    os.mkdir(registry_dir)
+    for file in os.listdir(registry_dir):
+        file_path = os.path.join(registry_dir, file)
+
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+        else:
+            shutil.rmtree(file_path)
 
     urllib.request.urlretrieve(script_args.registry_url, registry_archive)
 
