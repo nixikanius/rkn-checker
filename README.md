@@ -12,10 +12,10 @@ pip install -r venv-requirements.txt
 ```
 
 ```
-python check.py fetch
-python check.py check 159.89.5.4
-python check.py check sslproxy.teamwork.com
-python check.py check 159.89.5.4 sslproxy.teamwork.com
+python checker.py fetch
+python checker.py check 159.89.5.4
+python checker.py check sslproxy.teamwork.com
+python checker.py check 159.89.5.4 sslproxy.teamwork.com
 ```
 
 
