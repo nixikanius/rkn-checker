@@ -161,7 +161,7 @@ class RknChecker(object):
                 shutil.rmtree(node_path)
 
     def check(self, host):
-        hosts = host if hasattr(host, "__iter__") else [host]
+        hosts = host if isinstance(host, list) else [host]
         db_conn = sqlite3.connect(self.registry_db_file)
 
         result = self._check_hosts(hosts, db_conn)
@@ -209,6 +209,8 @@ class RknChecker(object):
     def _get_host_obj(host):
         try:
             host_obj = netaddr.IPAddress(host)
+        except ValueError:
+            host_obj = netaddr.IPNetwork(host)
         except netaddr.core.AddrFormatError:
             host_obj = host
 
@@ -238,7 +240,7 @@ class RknChecker(object):
             if result:
                 results = [result]
         else:
-            results = self._check_ip_obj(host_obj, db_conn)
+            results = self._check_ipnet_obj(host_obj, db_conn)
 
         return results
 
@@ -255,12 +257,18 @@ class RknChecker(object):
 
         return result
 
-    def _check_ip_obj(self, ip_obj, db_conn):
+    def _check_ipnet_obj(self, ipnet_obj, db_conn):
         results = []
         db_cursor = db_conn.cursor()
 
-        db_cursor.execute("SELECT start_addr, end_addr FROM ip_networks WHERE ? BETWEEN start_addr AND end_addr",
-                          (int(ip_obj),))
+        if isinstance(ipnet_obj, netaddr.IPAddress):
+            db_cursor.execute("""SELECT start_addr, end_addr FROM ip_networks WHERE ? BETWEEN start_addr AND end_addr""",
+                            (int(ipnet_obj),))
+        else:
+            db_cursor.execute("""SELECT start_addr, end_addr FROM ip_networks WHERE ? BETWEEN start_addr AND end_addr
+                                                                              AND ? BETWEEN start_addr AND end_addr""",
+                            (ipnet_obj.first, ipnet_obj.last))
+
         select_results = db_cursor.fetchall()
 
         for select_result in select_results:
